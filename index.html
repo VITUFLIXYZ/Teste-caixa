@@ -112,6 +112,11 @@
             text-align: right;
         }
 
+        /* Estilo específico para o campo de texto do nome */
+        .campo-pagamento input[type="text"] {
+            text-align: left;
+        }
+
         .btn-acao {
             width: 100%;
             padding: 14px;
@@ -232,22 +237,27 @@
 </head>
 <body>
 
+    <!-- INTERFACE DO CAIXA -->
     <div class="container">
         <h2>🌽 Arraial da Ritinha 🌽</h2>
         <div class="sub">Controle de Caixa e Vendas</div>
 
+        <!-- Grade de Produtos Dinâmica -->
         <div id="grid-produtos" class="grid-produtos"></div>
 
+        <!-- Resumo da Venda Atual -->
         <div class="resumo-caixa">
             <h4>Pedido Atual</h4>
             <div id="lista-carrinho" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; font-size: 14px;">
-                </div>
+                <!-- Itens entram aqui -->
+            </div>
             
             <div class="linha-resumo total-destaque">
                 <span>TOTAL:</span>
                 <span id="valor-total">R$ 0,00</span>
             </div>
 
+            <!-- SELETOR DE MEIO DE PAGAMENTO -->
             <div class="campo-pagamento">
                 <label for="metodo-pagamento">Forma de Pago:</label>
                 <select id="metodo-pagamento" onchange="ajustarPorMetodoPagamento()">
@@ -256,11 +266,18 @@
                 </select>
             </div>
 
+            <!-- CAMPO DINÂMICO PARA NOME NO PIX (Inicia escondido) -->
+            <div class="campo-pagamento" id="container-nome-pix" style="display: none;">
+                <label for="nome-pix">Nome do Pagador:</label>
+                <input type="text" id="nome-pix" placeholder="Ex: Maria Silva">
+            </div>
+
             <div class="campo-pagamento" id="container-valor-pago">
                 <label for="valor-pago">Valor Recebido:</label>
                 <input type="number" id="valor-pago" step="0.01" inputmode="decimal" placeholder="R$ 0,00" oninput="calcularTroco()">
             </div>
 
+            <!-- ATALHOS DE VALORES RÁPIDOS -->
             <div class="grid-notas-rapidas" id="container-notas-rapidas">
                 <button class="btn-nota" onclick="inserirNotaRapida(0)">Valor Exato</button>
                 <button class="btn-nota" onclick="inserirNotaRapida(5)">R$ 5</button>
@@ -276,6 +293,7 @@
             </div>
         </div>
 
+        <!-- Botões de Comando -->
         <button class="btn-acao" style="background-color: #27ae60;" onclick="concluirVenda()">✅ Concluir Sem Imprimir</button>
         <button class="btn-acao" style="background-color: #2ecc71;" onclick="finalizarEImprimir()">🖨️ Concluir e Imprimir</button>
         <button class="btn-acao" style="background-color: #e74c3c;" onclick="limparCarrinho()">🗑️ Cancelar Pedido</button>
@@ -283,14 +301,17 @@
         <button class="btn-acao" style="background-color: #c0392b;" onclick="zerarCaixaDoDia()">⚠️ Fechar e Zerar Caixa</button>
     </div>
 
+    <!-- PAINEL HISTÓRICO DE VENDAS -->
     <div class="container" style="border-top: 4px solid #f39c12;">
         <h3>📜 Histórico de Vendas</h3>
         <button class="btn-acao" style="background-color: #2980b9; margin-bottom: 15px; padding: 10px; font-size: 14px;" onclick="imprimirHistoricoCompleto()">🖨️ Imprimir Histórico do Dia</button>
         
         <div id="lista-historico-vendas" style="max-height: 250px; overflow-y: auto; text-align: left; padding: 5px;">
-            </div>
+            <!-- Preenchido via JavaScript -->
+        </div>
     </div>
 
+    <!-- BOTÃO E PAINEL DE GERENCIAMENTO DE CARDÁPIO -->
     <div style="text-align: center; margin: 20px 0;">
         <button id="btn-gerenciar" class="btn-acao" style="background-color: #7f8c8d; max-width: 480px; display: block; margin: 0 auto;" onclick="toggleGerenciador()">⚙️ Gerenciar Produtos</button>
     </div>
@@ -298,6 +319,7 @@
     <div id="painel-gerenciador" class="container" style="display: none; margin-top: 20px; border-top: 4px solid #7f8c8d;">
         <h3>⚙️ Gerenciar Cardápio</h3>
         
+        <!-- Formulário para novos produtos -->
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
             <h4 style="margin-top: 0; text-align: left;">Adicionar Novo Produto</h4>
             <input type="text" id="novo-nome" placeholder="Nome (Ex: Quentão)" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;">
@@ -317,15 +339,20 @@
             <button class="btn-acao" style="background-color: #2ecc71; width: 100%; margin-top: 0;" onclick="adicionarProduto()">+ Adicionar ao Cardápio</button>
         </div>
 
+        <!-- Lista de remoção -->
         <h4>Produtos Atuais (Toque para excluir)</h4>
         <div id="lista-exclusao-produtos" style="text-align: left;">
-            </div>
+            <!-- Gerado dinamicamente via JS -->
+        </div>
     </div>
 
+    <!-- MODELO DO TALÃO TÉRMICO PARA IMPRESSÃO (VENDAS E HISTÓRICO) -->
     <div id="talao" class="talao-impressao">
-        </div>
+        <!-- O conteúdo interno é gerado via JS -->
+    </div>
 
 
+    <!-- LÓGICA DO SISTEMA -->
     <script>
         // --- 1. CARDÁPIO E PERSISTÊNCIA (LOCALSTORAGE) ---
         const cardapioPadrao = [
@@ -392,11 +419,17 @@
             for (let i = vendasDoDia.length - 1; i >= 0; i--) {
                 const venda = vendasDoDia[i];
                 let itensTexto = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
+                
+                // Exibição do nome no histórico se houver
+                let rotuloMetodo = venda.metodo;
+                if (venda.metodo === "PIX" && venda.pagador) {
+                    rotuloMetodo += ` (${venda.pagador})`;
+                }
 
                 container.innerHTML += `
                     <div class="item-historico" style="${venda.estornado ? 'text-decoration: line-through; opacity: 0.5; border-left: 4px solid #e74c3c;' : 'border-left: 4px solid #2ecc71;'}">
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <strong>Pedido #${i + 1} (${venda.metodo})</strong>
+                            <strong>Pedido #${i + 1} - ${rotuloMetodo}</strong>
                             <small>${venda.dataHora.split(' ')[1]}</small>
                         </div>
                         <div style="color:#5d6d7e; font-size:13px; margin-bottom:6px;">${itensTexto}</div>
@@ -513,16 +546,20 @@
             const containerPago = document.getElementById('container-valor-pago');
             const containerNotas = document.getElementById('container-notas-rapidas');
             const containerTroco = document.getElementById('container-troco');
+            const containerNomePix = document.getElementById('container-nome-pix');
 
             if (metodo === "PIX") {
                 inputPago.value = totalGeral > 0 ? totalGeral.toFixed(2) : '';
                 containerPago.style.display = 'none';
                 containerNotas.style.display = 'none';
                 containerTroco.style.display = 'none';
+                containerNomePix.style.display = 'flex'; // Mostra campo do nome
             } else {
                 containerPago.style.display = 'flex';
                 containerNotas.style.display = 'flex';
                 containerTroco.style.display = 'flex';
+                containerNomePix.style.display = 'none'; // Esconde campo do nome
+                document.getElementById('nome-pix').value = ''; // Limpa o nome
                 calcularTroco();
             }
         }
@@ -551,6 +588,7 @@
         function limparCarrinho() {
             carrinho = {};
             document.getElementById('valor-pago').value = '';
+            document.getElementById('nome-pix').value = '';
             document.getElementById('metodo-pagamento').value = 'Dinheiro';
             atualizarInterfaceCarrinho();
         }
@@ -564,6 +602,8 @@
 
             const metodo = document.getElementById('metodo-pagamento').value;
             let valorPago = parseFloat(document.getElementById('valor-pago').value) || 0;
+            const nomePagador = document.getElementById('nome-pix').value.trim();
+            
             if (metodo === "PIX") valorPago = totalGeral;
 
             if (valorPago < totalGeral) {
@@ -588,13 +628,13 @@
                 valorPago: valorPago,
                 troco: troco,
                 itens: itensVendidosSalvar,
+                pagador: metodo === "PIX" ? (nomePagador || "Não Informado") : "",
                 estornado: false
             };
 
             vendasDoDia.push(novaVenda);
             localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
 
-            // Gera e chama a impressão do cupom imediatamente
             executarImpressaoTalao(novaVenda, "Comprovante de Venda");
 
             limparCarrinho();
@@ -612,10 +652,20 @@
                 </tr>
             `).join('');
 
-            let blocosExtrasDinheiro = (dadosVenda.metodo === "PIX") ? '' : `
-                <div>Recebido: <span>${formatarMoeda(dadosVenda.valorPago)}</span></div>
-                <div>Troco: <span>${formatarMoeda(dadosVenda.troco)}</span></div>
-            `;
+            // Bloco dinâmico de informações de pagamento no cupom
+            let blocoInformacoesPago = '';
+            if (dadosVenda.metodo === "PIX") {
+                blocoInformacoesPago = `
+                    <div>Forma de Pago: <strong>📱 PIX</strong></div>
+                    <div>Pagador: <strong>${dadosVenda.pagador}</strong></div>
+                `;
+            } else {
+                blocoInformacoesPago = `
+                    <div>Forma de Pago: <strong>💵 Dinheiro</strong></div>
+                    <div>Recebido: <span>${formatarMoeda(dadosVenda.valorPago)}</span></div>
+                    <div>Troco: <span>${formatarMoeda(dadosVenda.troco)}</span></div>
+                `;
+            }
 
             talao.innerHTML = `
                 <div class="talao-header">
@@ -639,8 +689,8 @@
                 <div class="divisor"></div>
                 <div class="talao-totais">
                     <div><strong>TOTAL PEDIDO:</strong> <strong>${formatarMoeda(dadosVenda.total)}</strong></div>
-                    <div>Forma de Pago: <strong>${dadosVenda.metodo}</strong></div>
-                    ${blocosExtrasDinheiro}
+                    <div style="margin-top: 4px;"></div>
+                    ${blocoInformacoesPago}
                 </div>
                 <div class="divisor"></div>
                 <div class="talao-footer">
@@ -649,7 +699,6 @@
                 </div>
             `;
 
-            // Dá uma brecha imperceptível para o navegador estruturar o HTML novo antes de disparar a janela de impressão
             setTimeout(() => {
                 window.print();
             }, 50);
@@ -682,14 +731,18 @@
                 else totalDinheiro += venda.total;
 
                 let detalheItens = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
+                
+                // Texto do pagador na linha do histórico geral
+                let infoPagador = venda.pagador ? ` - Ref: ${venda.pagador}` : "";
+
                 linhasVendas += `
                     <tr>
-                        <td style="font-size:11px; padding: 4px 0;">
-                            <strong>#${idx + 1} - ${venda.metodo} (${venda.dataHora.split(' ')[1]})</strong><br>
+                        <td style="font-size:11px; padding: 5px 0; border-bottom: 1px dashed #eee;">
+                            <strong>#${idx + 1} - ${venda.metodo}${infoPagador} (${venda.dataHora.split(' ')[1]})</strong><br>
                             <span style="color:#555;">${detalheItens}</span>
                         </td>
                         <td></td>
-                        <td class="text-right" style="vertical-align:middle;">${formatarMoeda(venda.total)}</td>
+                        <td class="text-right" style="vertical-align:middle; border-bottom: 1px dashed #eee;">${formatarMoeda(venda.total)}</td>
                     </tr>
                 `;
             });
@@ -739,6 +792,8 @@
 
             const metodo = document.getElementById('metodo-pagamento').value;
             let valorPago = parseFloat(document.getElementById('valor-pago').value) || 0;
+            const nomePagador = document.getElementById('nome-pix').value.trim();
+            
             if (metodo === "PIX") valorPago = totalGeral;
 
             if (valorPago < totalGeral) {
@@ -763,6 +818,7 @@
                 valorPago: valorPago,
                 troco: troco,
                 itens: itensVendidosSalvar,
+                pagador: metodo === "PIX" ? (nomePagador || "Não Informado") : "",
                 estornado: false
             };
 

@@ -266,7 +266,7 @@
                 </select>
             </div>
 
-            <!-- CAMPO DINÂMICO PARA NOME NO PIX (Inicia escondido) -->
+            <!-- CAMPO DINÂMICO PARA NOME NO PIX -->
             <div class="campo-pagamento" id="container-nome-pix" style="display: none;">
                 <label for="nome-pix">Nome do Pagador:</label>
                 <input type="text" id="nome-pix" placeholder="Ex: Maria Silva">
@@ -420,7 +420,6 @@
                 const venda = vendasDoDia[i];
                 let itensTexto = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
                 
-                // Exibição do nome no histórico se houver
                 let rotuloMetodo = venda.metodo;
                 if (venda.metodo === "PIX" && venda.pagador) {
                     rotuloMetodo += ` (${venda.pagador})`;
@@ -553,13 +552,13 @@
                 containerPago.style.display = 'none';
                 containerNotas.style.display = 'none';
                 containerTroco.style.display = 'none';
-                containerNomePix.style.display = 'flex'; // Mostra campo do nome
+                containerNomePix.style.display = 'flex'; // Torna visível imediatamente
             } else {
                 containerPago.style.display = 'flex';
                 containerNotas.style.display = 'flex';
                 containerTroco.style.display = 'flex';
-                containerNomePix.style.display = 'none'; // Esconde campo do nome
-                document.getElementById('nome-pix').value = ''; // Limpa o nome
+                containerNomePix.style.display = 'none'; // Oculta
+                document.getElementById('nome-pix').value = '';
                 calcularTroco();
             }
         }
@@ -591,6 +590,7 @@
             document.getElementById('nome-pix').value = '';
             document.getElementById('metodo-pagamento').value = 'Dinheiro';
             atualizarInterfaceCarrinho();
+            ajustarPorMetodoPagamento(); // Garante o reset visual dos blocos dinâmicos
         }
 
         // --- 5. EXECUÇÃO DE IMPRESSÕES E PROCESSAMENTOS ---
@@ -652,7 +652,6 @@
                 </tr>
             `).join('');
 
-            // Bloco dinâmico de informações de pagamento no cupom
             let blocoInformacoesPago = '';
             if (dadosVenda.metodo === "PIX") {
                 blocoInformacoesPago = `
@@ -731,8 +730,6 @@
                 else totalDinheiro += venda.total;
 
                 let detalheItens = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
-                
-                // Texto do pagador na linha do histórico geral
                 let infoPagador = venda.pagador ? ` - Ref: ${venda.pagador}` : "";
 
                 linhasVendas += `
@@ -898,6 +895,7 @@
         window.onload = function() {
             renderizarBotoesVenda();
             renderizarHistorico();
+            ajustarPorMetodoPagamento(); // Força a leitura inicial dos campos para evitar travas no iOS
         };
     </script>
 </body>

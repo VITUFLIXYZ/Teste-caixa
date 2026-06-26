@@ -112,7 +112,6 @@
             text-align: right;
         }
 
-        /* Estilo específico para o campo de texto do nome */
         .campo-pagamento input[type="text"] {
             text-align: left;
         }
@@ -130,8 +129,7 @@
             box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
-        /* Botões pequenos de notas rápidas */
-        .grid-notas-rapidas {
+        .grid-notes-rapidas {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
@@ -155,7 +153,6 @@
             background: #d4e6f1;
         }
 
-        /* Estilo para itens do Histórico */
         .item-historico {
             background: #f8f9fa;
             border: 1px solid #eaeded;
@@ -165,7 +162,6 @@
             font-size: 14px;
         }
 
-        /* --- ESTILOS DE IMPRESSÃO (TÉRMICA 58mm) --- */
         @media print {
             .container, #btn-gerenciar, #painel-gerenciador, h2, h3, .sub, style, script, .btn-acao {
                 display: none !important;
@@ -237,36 +233,30 @@
 </head>
 <body>
 
-    <!-- INTERFACE DO CAIXA -->
     <div class="container">
         <h2>🌽 Arraial da Ritinha 🌽</h2>
         <div class="sub">Controle de Caixa e Vendas</div>
 
-        <!-- Grade de Produtos Dinâmica -->
         <div id="grid-produtos" class="grid-produtos"></div>
 
-        <!-- Resumo da Venda Atual -->
         <div class="resumo-caixa">
             <h4>Pedido Atual</h4>
             <div id="lista-carrinho" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; font-size: 14px;">
-                <!-- Itens entram aqui -->
-            </div>
+                </div>
             
             <div class="linha-resumo total-destaque">
                 <span>TOTAL:</span>
                 <span id="valor-total">R$ 0,00</span>
             </div>
 
-            <!-- SELETOR DE MEIO DE PAGAMENTO -->
             <div class="campo-pagamento">
                 <label for="metodo-pagamento">Forma de Pago:</label>
                 <select id="metodo-pagamento" onchange="ajustarPorMetodoPagamento()">
-                    <option value="Dinheiro">Dinheiro</option>
-                    <option value="PIX">PIX</option>
+                    <option value="Dinheiro">💵 Dinheiro</option>
+                    <option value="PIX">📱 PIX</option>
                 </select>
             </div>
 
-            <!-- CAMPO DINÂMICO PARA NOME NO PIX -->
             <div class="campo-pagamento" id="container-nome-pix" style="display: none;">
                 <label for="nome-pix">Nome do Pagador:</label>
                 <input type="text" id="nome-pix" placeholder="Ex: Maria Silva">
@@ -277,8 +267,7 @@
                 <input type="number" id="valor-pago" step="0.01" inputmode="decimal" placeholder="R$ 0,00" oninput="calcularTroco()">
             </div>
 
-            <!-- ATALHOS DE VALORES RÁPIDOS -->
-            <div class="grid-notas-rapidas" id="container-notas-rapidas">
+            <div class="grid-notes-rapidas" id="container-notas-rapidas">
                 <button class="btn-nota" onclick="inserirNotaRapida(0)">Valor Exato</button>
                 <button class="btn-nota" onclick="inserirNotaRapida(5)">R$ 5</button>
                 <button class="btn-nota" onclick="inserirNotaRapida(10)">R$ 10</button>
@@ -293,7 +282,6 @@
             </div>
         </div>
 
-        <!-- Botões de Comando -->
         <button class="btn-acao" style="background-color: #27ae60;" onclick="concluirVenda()">✅ Concluir Sem Imprimir</button>
         <button class="btn-acao" style="background-color: #2ecc71;" onclick="finalizarEImprimir()">🖨️ Concluir e Imprimir</button>
         <button class="btn-acao" style="background-color: #e74c3c;" onclick="limparCarrinho()">🗑️ Cancelar Pedido</button>
@@ -301,17 +289,14 @@
         <button class="btn-acao" style="background-color: #c0392b;" onclick="zerarCaixaDoDia()">⚠️ Fechar e Zerar Caixa</button>
     </div>
 
-    <!-- PAINEL HISTÓRICO DE VENDAS -->
     <div class="container" style="border-top: 4px solid #f39c12;">
         <h3>📜 Histórico de Vendas</h3>
         <button class="btn-acao" style="background-color: #2980b9; margin-bottom: 15px; padding: 10px; font-size: 14px;" onclick="imprimirHistoricoCompleto()">🖨️ Imprimir Histórico do Dia</button>
         
         <div id="lista-historico-vendas" style="max-height: 250px; overflow-y: auto; text-align: left; padding: 5px;">
-            <!-- Preenchido via JavaScript -->
-        </div>
+            </div>
     </div>
 
-    <!-- BOTÃO E PAINEL DE GERENCIAMENTO DE CARDÁPIO -->
     <div style="text-align: center; margin: 20px 0;">
         <button id="btn-gerenciar" class="btn-acao" style="background-color: #7f8c8d; max-width: 480px; display: block; margin: 0 auto;" onclick="toggleGerenciador()">⚙️ Gerenciar Produtos</button>
     </div>
@@ -319,7 +304,6 @@
     <div id="painel-gerenciador" class="container" style="display: none; margin-top: 20px; border-top: 4px solid #7f8c8d;">
         <h3>⚙️ Gerenciar Cardápio</h3>
         
-        <!-- Formulário para novos produtos -->
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
             <h4 style="margin-top: 0; text-align: left;">Adicionar Novo Produto</h4>
             <input type="text" id="novo-nome" placeholder="Nome (Ex: Quentão)" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;">
@@ -327,32 +311,37 @@
             
             <label style="display:block; margin-bottom: 5px; font-weight: bold;">Cor da Ficha:</label>
             <select id="nova-cor" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc;">
-                <option value="#e74c3c">Vermelho</option>
-                <option value="#3498db">Azul</option>
-                <option value="#2ecc71">Verde</option>
-                <option value="#f1c40f">Amarelo</option>
-                <option value="#9b59b6">Roxo</option>
-                <option value="#e67e22">Laranja</option>
-                <option value="#bdc3c7">Cinza</option>
+                <option value="#e74c3c">🔴 Vermelho</option>
+                <option value="#3498db">🔵 Azul</option>
+                <option value="#2ecc71">🟢 Verde</option>
+                <option value="#f1c40f">🟡 Amarelo</option>
+                <option value="#9b59b6">🟣 Roxo</option>
+                <option value="#e67e22">🟠 Laranja</option>
+                <option value="#ff7675">🌸 Rosa Claro</option>
+                <option value="#fd79a8">💖 Rosa Choque</option>
+                <option value="#00cec9">💎 Ciano / Turquesa</option>
+                <option value="#1abc9c">🌐 Verde Água</option>
+                <option value="#d35400">🔥 Abóbora</option>
+                <option value="#8e44ad">🍇 Roxo Escuro</option>
+                <option value="#2c3e50">🌑 Azul Escuro</option>
+                <option value="#8b4513">🟤 Marrom</option>
+                <option value="#27ae60">🌲 Verde Oliva</option>
+                <option value="#7f8c8d">🪙 Cinza</option>
+                <option value="#2d3436">⚫ Preto</option>
             </select>
             
             <button class="btn-acao" style="background-color: #2ecc71; width: 100%; margin-top: 0;" onclick="adicionarProduto()">+ Adicionar ao Cardápio</button>
         </div>
 
-        <!-- Lista de remoção -->
         <h4>Produtos Atuais (Toque para excluir)</h4>
         <div id="lista-exclusao-produtos" style="text-align: left;">
-            <!-- Gerado dinamicamente via JS -->
-        </div>
+            </div>
     </div>
 
-    <!-- MODELO DO TALÃO TÉRMICO PARA IMPRESSÃO (VENDAS E HISTÓRICO) -->
     <div id="talao" class="talao-impressao">
-        <!-- O conteúdo interno é gerado via JS -->
-    </div>
+        </div>
 
 
-    <!-- LÓGICA DO SISTEMA -->
     <script>
         // --- 1. CARDÁPIO E PERSISTÊNCIA (LOCALSTORAGE) ---
         const cardapioPadrao = [
@@ -552,12 +541,12 @@
                 containerPago.style.display = 'none';
                 containerNotas.style.display = 'none';
                 containerTroco.style.display = 'none';
-                containerNomePix.style.display = 'flex'; // Torna visível imediatamente
+                containerNomePix.style.display = 'flex';
             } else {
                 containerPago.style.display = 'flex';
                 containerNotas.style.display = 'flex';
                 containerTroco.style.display = 'flex';
-                containerNomePix.style.display = 'none'; // Oculta
+                containerNomePix.style.display = 'none';
                 document.getElementById('nome-pix').value = '';
                 calcularTroco();
             }
@@ -590,7 +579,7 @@
             document.getElementById('nome-pix').value = '';
             document.getElementById('metodo-pagamento').value = 'Dinheiro';
             atualizarInterfaceCarrinho();
-            ajustarPorMetodoPagamento(); // Garante o reset visual dos blocos dinâmicos
+            ajustarPorMetodoPagamento();
         }
 
         // --- 5. EXECUÇÃO DE IMPRESSÕES E PROCESSAMENTOS ---
@@ -895,7 +884,7 @@
         window.onload = function() {
             renderizarBotoesVenda();
             renderizarHistorico();
-            ajustarPorMetodoPagamento(); // Força a leitura inicial dos campos para evitar travas no iOS
+            ajustarPorMetodoPagamento();
         };
     </script>
 </body>

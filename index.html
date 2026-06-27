@@ -745,8 +745,12 @@
             renderizarBotoesVenda();
         }
 
-        // --- 6. EXECUÇÃO DE IMPRESSÕES E PROCESSAMENTOS ---
+// --- 6. EXECUÇÃO DE IMPRESSÕES E PROCESSAMENTOS ---
+        let operacaoEmAndamento = false; // Trava de segurança contra cliques duplos
+
         function finalizarEImprimir() {
+            if (operacaoEmAndamento) return; // Se já estiver processando, ignora cliques repetidos
+            
             if (totalGeral === 0) {
                 alert("O carrinho está vazio!");
                 return;
@@ -762,6 +766,8 @@
                 alert("O valor recebido é menor que o total da conta.");
                 return;
             }
+
+            operacaoEmAndamento = true; // Ativa a trava
 
             abaterEstoqueDoCarrinho();
 
@@ -789,13 +795,19 @@
             vendasDoDia.push(novaVenda);
             localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
 
+            // Dispara a impressão
             executarImpressaoTalao(novaVenda, "Comprovante de Venda");
 
+            // Limpa tudo e libera a trava
             limparCarrinho();
             renderizarHistorico();
+            
+            setTimeout(() => { operacaoEmAndamento = false; }, 1000); // Libera o botão após 1 segundo
         }
 
         function concluirVenda() {
+            if (operacaoEmAndamento) return; // Se já estiver processando, ignora cliques repetidos
+
             if (totalGeral === 0) {
                 alert("O carrinho está vazio!");
                 return;
@@ -811,6 +823,8 @@
                 alert("O valor recebido é menor que o total da conta.");
                 return;
             }
+
+            operacaoEmAndamento = true; // Ativa a trava
 
             abaterEstoqueDoCarrinho();
 
@@ -840,31 +854,14 @@
 
             alert("Venda concluída com sucesso!");
 
+            // Limpa tudo de imediato e libera a trava
             limparCarrinho();
             renderizarHistorico();
+            
+            setTimeout(() => { operacaoEmAndamento = false; }, 500); // Libera o botão rapidamente
         }
 
-        function estornarVenda(index) {
-            if (confirm(`Tem certeza que deseja ESTORNAR o Pedido #${index + 1}? Os itens voltarão para o estoque.`)) {
-                let venda = vendasDoDia[index];
-                venda.estornado = true;
-
-                venda.itens.forEach(item => {
-                    let p = produtos.find(prod => prod.id == item.idOriginal);
-                    if (p && p.estoque !== null) {
-                        p.estoque += item.qtd;
-                    }
-                });
-
-                localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
-                localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
-                
-                renderizarBotoesVenda();
-                renderizarHistorico();
-            }
-        }
-
-        function ejecutarImpressaoTalao(dadosVenda, tipoTexto) {
+        function executarImpressaoTalao(dadosVenda, tipoTexto) {
             const talao = document.getElementById('talao');
             
             let tabelaLinhas = dadosVenda.itens.map(item => `
@@ -921,9 +918,10 @@
                 </div>
             `;
 
+            // Aumentado de 50ms para 300ms para garantir estabilidade da renderização do cupom
             setTimeout(() => {
                 window.print();
-            }, 50);
+            }, 300);
         }
 
         function reimprimirVenda(index) {

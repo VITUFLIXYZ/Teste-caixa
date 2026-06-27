@@ -288,7 +288,7 @@
             </div>
 
             <!-- ATALHOS DE VALORES RÁPIDOS -->
-            <div class="grid-notes-rapidas" id="container-notas-rapidas">
+            <div class="grid-notes-rapidas" id="container-notes-rapidas">
                 <button class="btn-nota" onclick="inserirNotaRapida(0)">Valor Exato</button>
                 <button class="btn-nota" onclick="inserirNotaRapida(5)">R$ 5</button>
                 <button class="btn-nota" onclick="inserirNotaRapida(10)">R$ 10</button>
@@ -534,16 +534,14 @@
             let prod = produtos.find(p => p.id === id);
             if (!prod) return;
 
-            // 1. Alterar Nome
             let novoNome = prompt(`Editar NOME do produto:\n(Atual: ${prod.nome})`, prod.nome);
-            if (novoNome === null) return; // cancelou
+            if (novoNome === null) return;
             novoNome = novoNome.trim();
             if (novoNome === "") {
                 alert("O nome não pode ficar vazio.");
                 return;
             }
 
-            // 2. Alterar Preço
             let precoAtualStr = prod.preco.toFixed(2);
             let novoPrecoStr = prompt(`Editar PREÇO do produto (use ponto para centavos):\n(Atual: R$ ${precoAtualStr})`, precoAtualStr);
             if (novoPrecoStr === null) return;
@@ -553,10 +551,8 @@
                 return;
             }
 
-            // 3. Alterar Estoque
             let estoqueAtualStr = prod.estoque !== null ? prod.estoque : "ilimitado";
             let novoEstoqueStr = prompt(`Editar ESTOQUE (Digite o número total de fichas ou deixe VAZIO para ILIMITADO):\n(Atual: ${estoqueAtualStr})`, prod.estoque !== null ? prod.estoque : "");
-            
             if (novoEstoqueStr === null) return;
             
             let novoEstoque = novoEstoqueStr.trim() === "" ? null : parseInt(novoEstoqueStr);
@@ -565,7 +561,6 @@
                 return;
             }
 
-            // Salva as alterações
             prod.nome = novoNome;
             prod.preco = novoPreco;
             prod.estoque = novoEstoque;
@@ -573,7 +568,7 @@
             localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
             renderizarBotoesVenda();
             renderizarListaExclusao();
-            limparCarrinho(); // Limpa para evitar erros de cálculo com o preço antigo no carrinho
+            limparCarrinho();
             alert("Produto atualizado com sucesso!");
         }
 
@@ -705,7 +700,6 @@
                 containerNotas.style.display = 'flex';
                 containerTroco.style.display = 'flex';
                 containerNomePix.style.display = 'none';
-                document.getElementById('nome-pix').value = '';
                 calcularTroco();
             }
         }
@@ -734,7 +728,7 @@
         function limparCarrinho() {
             carrinho = {};
             document.getElementById('valor-pago').value = '';
-            document.getElementById('nome-pix').value = '';
+            document.getElementById('nome-pix').value = ''; // Limpa o nome do PIX para a próxima rodada!
             document.getElementById('metodo-pagamento').value = 'Dinheiro';
             atualizarInterfaceCarrinho();
             ajustarPorMetodoPagamento();
@@ -958,10 +952,15 @@
                 else totalDinheiroVendas += venda.total;
 
                 let detalheItens = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
+                let displayMetodo = venda.metodo;
+                if(venda.metodo === "PIX" && venda.pagador) {
+                    displayMetodo += ` (${venda.pagador})`;
+                }
+
                 linhasVendas += `
                     <tr>
                         <td style="font-size:11px; padding: 4px 0; border-bottom: 1px dashed #eee;">
-                            <strong>#${idx + 1} - ${venda.metodo} (${venda.dataHora.split(' ')[1]})</strong><br>
+                            <strong>#${idx + 1} - ${displayMetodo} (${venda.dataHora.split(' ')[1]})</strong><br>
                             <span style="color:#555;">${detalheItens}</span>
                         </td>
                         <td></td>
@@ -1007,8 +1006,8 @@
                 </table>
                 <div class="divisor"></div>
                 <div class="talao-totais" style="font-size:12px;">
-                    <div>💵 Vendas in Dinheiro: <span>${formatarMoeda(totalDinheiroVendas)}</span></div>
-                    <div>📱 Vendas in PIX: <span>${formatarMoeda(totalPixVendas)}</span></div>
+                    <div>💵 Vendas em Dinheiro: <span>${formatarMoeda(totalDinheiroVendas)}</span></div>
+                    <div>📱 Vendas em PIX: <span>${formatarMoeda(totalPixVendas)}</span></div>
                     <div style="margin:4px 0; border-top:1px dotted black; padding-top:4px;"></div>
                     <div>📥 Total Suprimento: <span>+${formatarMoeda(totalSuprimentos)}</span></div>
                     <div>📤 Total Sangria: <span>-${formatarMoeda(totalSangrias)}</span></div>

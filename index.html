@@ -45,7 +45,7 @@
         }
 
         .btn-produto {
-            padding: 18px 10px;
+            padding: 15px 10px;
             color: white;
             border: none;
             border-radius: 8px;
@@ -59,6 +59,14 @@
 
         .btn-produto:active {
             transform: scale(0.95);
+        }
+
+        .btn-produto:disabled {
+            background-color: #bdc3c7 !important;
+            color: #7f8c8d !important;
+            cursor: not-allowed;
+            box-shadow: none;
+            text-shadow: none;
         }
 
         .btn-produto small {
@@ -162,6 +170,12 @@
             font-size: 14px;
         }
 
+        .painel-movimentacao {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
         @media print {
             .container, #btn-gerenciar, #painel-gerenciador, h2, h3, .sub, style, script, .btn-acao {
                 display: none !important;
@@ -233,22 +247,27 @@
 </head>
 <body>
 
+    <!-- INTERFACE DO CAIXA -->
     <div class="container">
         <h2>🌽 Arraial da Ritinha 🌽</h2>
         <div class="sub">Controle de Caixa e Vendas</div>
 
+        <!-- Grade de Produtos Dinâmica -->
         <div id="grid-produtos" class="grid-produtos"></div>
 
+        <!-- Resumo da Venda Atual -->
         <div class="resumo-caixa">
             <h4>Pedido Atual</h4>
             <div id="lista-carrinho" style="max-height: 150px; overflow-y: auto; margin-bottom: 10px; font-size: 14px;">
-                </div>
+                <!-- Itens entram aqui -->
+            </div>
             
             <div class="linha-resumo total-destaque">
                 <span>TOTAL:</span>
                 <span id="valor-total">R$ 0,00</span>
             </div>
 
+            <!-- SELETOR DE MEIO DE PAGAMENTO -->
             <div class="campo-pagamento">
                 <label for="metodo-pagamento">Forma de Pago:</label>
                 <select id="metodo-pagamento" onchange="ajustarPorMetodoPagamento()">
@@ -257,6 +276,7 @@
                 </select>
             </div>
 
+            <!-- CAMPO DINÂMICO PARA NOME NO PIX -->
             <div class="campo-pagamento" id="container-nome-pix" style="display: none;">
                 <label for="nome-pix">Nome do Pagador:</label>
                 <input type="text" id="nome-pix" placeholder="Ex: Maria Silva">
@@ -267,6 +287,7 @@
                 <input type="number" id="valor-pago" step="0.01" inputmode="decimal" placeholder="R$ 0,00" oninput="calcularTroco()">
             </div>
 
+            <!-- ATALHOS DE VALORES RÁPIDOS -->
             <div class="grid-notes-rapidas" id="container-notas-rapidas">
                 <button class="btn-nota" onclick="inserirNotaRapida(0)">Valor Exato</button>
                 <button class="btn-nota" onclick="inserirNotaRapida(5)">R$ 5</button>
@@ -282,21 +303,32 @@
             </div>
         </div>
 
+        <!-- Botões de Comando -->
         <button class="btn-acao" style="background-color: #27ae60;" onclick="concluirVenda()">✅ Concluir Sem Imprimir</button>
         <button class="btn-acao" style="background-color: #2ecc71;" onclick="finalizarEImprimir()">🖨️ Concluir e Imprimir</button>
         <button class="btn-acao" style="background-color: #e74c3c;" onclick="limparCarrinho()">🗑️ Cancelar Pedido</button>
-        <button class="btn-acao" style="background-color: #f39c12; margin-top: 20px;" onclick="gerarRelatorioFechamento()">📊 Ver Relatório na Tela</button>
+        
+        <!-- ENTRADAS/SAÍDAS DE DINHEIRO (SUPRIMENTO E SANGRIA) -->
+        <div class="painel-movimentacao" style="margin-top: 15px;">
+            <button class="btn-acao" style="background-color: #2980b9; margin-top: 0; padding: 10px; font-size: 13px;" onclick="registrarMovimentacao('Suprimento')">📥 + Troco Inicial</button>
+            <button class="btn-acao" style="background-color: #d35400; margin-top: 0; padding: 10px; font-size: 13px;" onclick="registrarMovimentacao('Sangria')">📤 - Retirar Dinheiro</button>
+        </div>
+
+        <button class="btn-acao" style="background-color: #f39c12; margin-top: 10px;" onclick="gerarRelatorioFechamento()">📊 Ver Relatório na Tela</button>
         <button class="btn-acao" style="background-color: #c0392b;" onclick="zerarCaixaDoDia()">⚠️ Fechar e Zerar Caixa</button>
     </div>
 
+    <!-- PAINEL HISTÓRICO DE VENDAS -->
     <div class="container" style="border-top: 4px solid #f39c12;">
         <h3>📜 Histórico de Vendas</h3>
         <button class="btn-acao" style="background-color: #2980b9; margin-bottom: 15px; padding: 10px; font-size: 14px;" onclick="imprimirHistoricoCompleto()">🖨️ Imprimir Histórico do Dia</button>
         
         <div id="lista-historico-vendas" style="max-height: 250px; overflow-y: auto; text-align: left; padding: 5px;">
-            </div>
+            <!-- Preenchido via JavaScript -->
+        </div>
     </div>
 
+    <!-- BOTÃO E PAINEL DE GERENCIAMENTO DE CARDÁPIO -->
     <div style="text-align: center; margin: 20px 0;">
         <button id="btn-gerenciar" class="btn-acao" style="background-color: #7f8c8d; max-width: 480px; display: block; margin: 0 auto;" onclick="toggleGerenciador()">⚙️ Gerenciar Produtos</button>
     </div>
@@ -304,10 +336,12 @@
     <div id="painel-gerenciador" class="container" style="display: none; margin-top: 20px; border-top: 4px solid #7f8c8d;">
         <h3>⚙️ Gerenciar Cardápio</h3>
         
+        <!-- Formulário para novos produtos -->
         <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
             <h4 style="margin-top: 0; text-align: left;">Adicionar Novo Produto</h4>
             <input type="text" id="novo-nome" placeholder="Nome (Ex: Quentão)" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;">
             <input type="number" id="novo-preco" step="0.01" inputmode="decimal" placeholder="Preço (Ex: 5.00)" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;">
+            <input type="number" id="novo-estoque" inputmode="numeric" placeholder="Qtd Inicial Estoque (Vazio = Ilimitado)" style="width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; border-radius: 5px; border: 1px solid #ccc;">
             
             <label style="display:block; margin-bottom: 5px; font-weight: bold;">Cor da Ficha:</label>
             <select id="nova-cor" style="width: 100%; padding: 10px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc;">
@@ -333,29 +367,34 @@
             <button class="btn-acao" style="background-color: #2ecc71; width: 100%; margin-top: 0;" onclick="adicionarProduto()">+ Adicionar ao Cardápio</button>
         </div>
 
-        <h4>Produtos Atuais (Toque para excluir)</h4>
+        <!-- Lista de remoção e ajuste de estoque -->
+        <h4>Produtos Atuais (Toque para excluir / Clique em + para reabastecer)</h4>
         <div id="lista-exclusao-produtos" style="text-align: left;">
-            </div>
+            <!-- Gerado dinamicamente via JS -->
+        </div>
     </div>
 
+    <!-- MODELO DO TALÃO TÉRMICO PARA IMPRESSÃO -->
     <div id="talao" class="talao-impressao">
-        </div>
+        <!-- O conteúdo interno é gerado via JS -->
+    </div>
 
-
+    <!-- LÓGICA DO SISTEMA -->
     <script>
         // --- 1. CARDÁPIO E PERSISTÊNCIA (LOCALSTORAGE) ---
         const cardapioPadrao = [
-            { id: 1, nome: "Pastel", preco: 8.00, cor: "#e74c3c" },
-            { id: 2, nome: "Canjica", preco: 6.00, cor: "#3498db" },
-            { id: 3, nome: "Bolo de Fubá", preco: 5.00, cor: "#2ecc71" },
-            { id: 4, nome: "Refrigerante", preco: 5.00, cor: "#f1c40f" },
-            { id: 5, nome: "Água", preco: 3.00, cor: "#9b59b6" }
+            { id: 1, nome: "Pastel", preco: 8.00, cor: "#e74c3c", estoque: null },
+            { id: 2, nome: "Canjica", preco: 6.00, cor: "#3498db", estoque: null },
+            { id: 3, nome: "Bolo de Fubá", preco: 5.00, cor: "#2ecc71", estoque: null },
+            { id: 4, nome: "Refrigerante", preco: 5.00, cor: "#f1c40f", estoque: null },
+            { id: 5, nome: "Água", preco: 3.00, cor: "#9b59b6", estoque: null }
         ];
 
         let produtos = JSON.parse(localStorage.getItem('cardapio_arraial')) || cardapioPadrao;
         let carrinho = {};
         let totalGeral = 0;
         let vendasDoDia = JSON.parse(localStorage.getItem('vendas_dia_arraial')) || [];
+        let movimentacoesCaixa = JSON.parse(localStorage.getItem('movimentacoes_caixa_arraial')) || [];
 
         const formatarMoeda = (valor) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
 
@@ -364,9 +403,14 @@
             const grid = document.getElementById('grid-produtos');
             grid.innerHTML = '';
             produtos.forEach(prod => {
+                let textoEstoque = prod.estoque !== null ? `<br><small>Estoque: ${prod.estoque}</small>` : '<br><small>Fichas Livres</small>';
+                let estaEsgotado = prod.estoque !== null && prod.estoque <= 0;
+                
+                if (estaEsgotado) textoEstoque = '<br><small>⚠️ ESGOTADO</small>';
+
                 grid.innerHTML += `
-                    <button class="btn-produto" style="background-color: ${prod.cor};" onclick="adicionarAoCarrinho(${prod.id})">
-                        ${prod.nome}<br><small>${formatarMoeda(prod.preco)}</small>
+                    <button class="btn-produto" style="background-color: ${prod.cor};" onclick="adicionarAoCarrinho(${prod.id})" ${estaEsgotado ? 'disabled' : ''}>
+                        ${prod.nome}${textoEstoque}<br><strong>${formatarMoeda(prod.preco)}</strong>
                     </button>
                 `;
             });
@@ -387,10 +431,17 @@
             const lista = document.getElementById('lista-exclusao-produtos');
             lista.innerHTML = '';
             produtos.forEach(prod => {
+                let exibicaoEstoque = prod.estoque !== null ? `${prod.estoque} un` : 'Ilimitado';
                 lista.innerHTML += `
-                    <div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 10px; margin-bottom: 8px; border-radius: 6px; border-left: 5px solid ${prod.cor}; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                        <span style="font-weight: 500;">${prod.nome} (${formatarMoeda(prod.preco)})</span>
-                        <button onclick="excluirProduto(${prod.id})" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">❌ Excluir</button>
+                    <div style="display: flex; flex-direction: column; background: #fff; padding: 10px; margin-bottom: 8px; border-radius: 6px; border-left: 5px solid ${prod.cor}; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-weight: 500;"><strong>${prod.nome}</strong> (${formatarMoeda(prod.preco)})</span>
+                            <button onclick="excluirProduto(${prod.id})" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size:12px;">❌ Excluir</button>
+                        </div>
+                        <div style="margin-top:6px; font-size:13px; color:#555; display:flex; align-items:center; gap:10px;">
+                            <span>Estoque atual: <strong>${exibicaoEstoque}</strong></span>
+                            <button onclick="adicionarEstoqueManual(${prod.id})" style="padding:2px 6px; font-size:11px; background:#2980b9; color:white; border:none; border-radius:3px; cursor:pointer;">+ Add Estoque</button>
+                        </div>
                     </div>
                 `;
             });
@@ -400,45 +451,66 @@
             const container = document.getElementById('lista-historico-vendas');
             container.innerHTML = '';
 
-            if (vendasDoDia.length === 0) {
-                container.innerHTML = `<div style="text-align:center; color:#7f8c8d; padding:10px;">Nenhuma venda gravada.</div>`;
+            // Junta vendas e movimentações para uma timeline completa ordenável
+            let timeline = [];
+            vendasDoDia.forEach((v, idx) => timeline.push({tipo: 'venda', originalIndex: idx, dataHora: v.dataHora, obj: v}));
+            movimentacoesCaixa.forEach((m, idx) => timeline.push({tipo: 'movimentacao', originalIndex: idx, dataHora: m.dataHora, obj: m}));
+
+            // Ordena do mais recente para o mais antigo
+            timeline.sort((a, b) => b.originalIndex - a.originalIndex);
+
+            if (timeline.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:#7f8c8d; padding:10px;">Nenhuma movimentação gravada.</div>`;
                 return;
             }
 
-            for (let i = vendasDoDia.length - 1; i >= 0; i--) {
-                const venda = vendasDoDia[i];
-                let itensTexto = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
-                
-                let rotuloMetodo = venda.metodo;
-                if (venda.metodo === "PIX" && venda.pagador) {
-                    rotuloMetodo += ` (${venda.pagador})`;
-                }
+            timeline.forEach(item => {
+                if (item.tipo === 'venda') {
+                    const venda = item.obj;
+                    let itensTexto = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
+                    let rotuloMetodo = venda.metodo;
+                    if (venda.metodo === "PIX" && venda.pagador) rotuloMetodo += ` (${venda.pagador})`;
 
-                container.innerHTML += `
-                    <div class="item-historico" style="${venda.estornado ? 'text-decoration: line-through; opacity: 0.5; border-left: 4px solid #e74c3c;' : 'border-left: 4px solid #2ecc71;'}">
-                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <strong>Pedido #${i + 1} - ${rotuloMetodo}</strong>
-                            <small>${venda.dataHora.split(' ')[1]}</small>
-                        </div>
-                        <div style="color:#5d6d7e; font-size:13px; margin-bottom:6px;">${itensTexto}</div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong style="color:#2c3e50;">${formatarMoeda(venda.total)}</strong>
-                            <div>
-                                ${!venda.estornado ? `
-                                    <button onclick="reimprimirVenda(${i})" style="padding:4px 8px; background:#3498db; color:white; border:none; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">🖨️ Reimprimir</button>
-                                    <button onclick="estornarVenda(${i})" style="padding:4px 8px; background:#e74c3c; color:white; border:none; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; margin-left:4px;">❌ Estornar</button>
-                                ` : '<span style="color:#e74c3c; font-weight:bold; font-size:12px;">ESTORNADO</span>'}
+                    container.innerHTML += `
+                        <div class="item-historico" style="${venda.estornado ? 'text-decoration: line-through; opacity: 0.5; border-left: 4px solid #e74c3c;' : 'border-left: 4px solid #2ecc71;'}">
+                            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                                <strong>Pedido #${item.originalIndex + 1} - ${rotuloMetodo}</strong>
+                                <small>${venda.dataHora.split(' ')[1]}</small>
+                            </div>
+                            <div style="color:#5d6d7e; font-size:13px; margin-bottom:6px;">${itensTexto}</div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <strong style="color:#2c3e50;">${formatarMoeda(venda.total)}</strong>
+                                <div>
+                                    ${!venda.estornado ? `
+                                        <button onclick="reimprimirVenda(${item.originalIndex})" style="padding:4px 8px; background:#3498db; color:white; border:none; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer;">🖨️ Reimprimir</button>
+                                        <button onclick="estornarVenda(${item.originalIndex})" style="padding:4px 8px; background:#e74c3c; color:white; border:none; border-radius:4px; font-size:12px; font-weight:bold; cursor:pointer; margin-left:4px;">❌ Estornar</button>
+                                    ` : '<span style="color:#e74c3c; font-weight:bold; font-size:12px;">ESTORNADO</span>'}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-            }
+                    `;
+                } else {
+                    const mov = item.obj;
+                    let corBorda = mov.tipo === 'Suprimento' ? '#2980b9' : '#d35400';
+                    container.innerHTML += `
+                        <div class="item-historico" style="border-left: 4px solid ${corBorda}; background:#f4f6f7;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <strong>💼 ${mov.tipo.toUpperCase()}</strong>
+                                <small>${mov.dataHora.split(' ')[1]}</small>
+                            </div>
+                            <div style="font-size:13px; margin:4px 0; color:#555;">Motivo: ${mov.obs}</div>
+                            <strong>Valor: ${formatarMoeda(mov.valor)}</strong>
+                        </div>
+                    `;
+                }
+            });
         }
 
         // --- 3. LÓGICA DE GERENCIAMENTO DE PRODUTOS ---
         function adicionarProduto() {
             const nome = document.getElementById('novo-nome').value.trim();
             const preco = parseFloat(document.getElementById('novo-preco').value);
+            const estoqueInput = document.getElementById('novo-estoque').value.trim();
             const cor = document.getElementById('nova-cor').value;
 
             if (!nome || isNaN(preco) || preco <= 0) {
@@ -446,15 +518,32 @@
                 return;
             }
 
-            const novoProd = { id: Date.now(), nome, preco, cor };
+            let estoque = estoqueInput === "" ? null : parseInt(estoqueInput);
+
+            const novoProd = { id: Date.now(), nome, preco, cor, estoque };
             produtos.push(novoProd);
             localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
             
             document.getElementById('novo-nome').value = '';
             document.getElementById('novo-preco').value = '';
+            document.getElementById('novo-estoque').value = '';
             
             renderizarBotoesVenda();
             renderizarListaExclusao();
+        }
+
+        function adicionarEstoqueManual(id) {
+            let qtd = prompt("Quantas unidades deseja Adicionar ao estoque desse produto?");
+            if (qtd === null || isNaN(parseInt(qtd))) return;
+            
+            let prod = produtos.find(p => p.id === id);
+            if (prod) {
+                if (prod.estoque === null) prod.estoque = 0;
+                prod.estoque += parseInt(qtd);
+                localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
+                renderizarBotoesVenda();
+                renderizarListaExclusao();
+            }
         }
 
         function excluirProduto(id) {
@@ -467,10 +556,42 @@
             }
         }
 
-        // --- 4. LÓGICA DA VENDA E CARRINHO ---
+        // --- 4. SANGRIA E SUPRIMENTO ---
+        function registrarMovimentacao(tipo) {
+            let valor = parseFloat(prompt(`Digite o valor do ${tipo} (Apenas números, Ex: 50.00):`));
+            if (isNaN(valor) || valor <= 0) {
+                alert("Valor inválido.");
+                return;
+            }
+            let obs = prompt(`Digite o motivo/observação (Ex: Troco inicial da Ritinha, Retirada para o cofre):`);
+            if (!obs) obs = "Não informado";
+
+            const agora = new Date();
+            const dataHoraStr = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
+
+            movimentacoesCaixa.push({ tipo, valor, obs, dataHora: dataHoraStr });
+            localStorage.setItem('movimentacoes_caixa_arraial', JSON.stringify(movimentacoesCaixa));
+            
+            alert(`${tipo} registrado com sucesso!`);
+            renderizarHistorico();
+        }
+
+        // --- 5. LÓGICA DA VENDA E CARRINHO ---
         function adicionarAoCarrinho(id) {
             const produto = produtos.find(p => p.id === id);
             if (!produto) return;
+
+            // Validação de Estoque
+            if (produto.estoque !== null && produto.estoque <= 0) {
+                alert("Este produto esgotou na cozinha!");
+                return;
+            }
+
+            let qtdNoCarrinho = carrinho[id] ? carrinho[id].qtd : 0;
+            if (produto.estoque !== null && (qtdNoCarrinho + 1) > produto.estoque) {
+                alert(`Você só possui mais ${produto.estoque} unidades em estoque deste produto.`);
+                return;
+            }
 
             if (carrinho[id]) {
                 carrinho[id].qtd++;
@@ -482,6 +603,13 @@
 
         function Skinner_alterarQuantidade(id, delta) {
             if (!carrinho[id]) return;
+            
+            let produto = produtos.find(p => p.id == id);
+            if (delta > 0 && produto && produto.estoque !== null && (carrinho[id].qtd + delta) > produto.estoque) {
+                alert("Estoque máximo atingido.");
+                return;
+            }
+
             carrinho[id].qtd += delta;
             if (carrinho[id].qtd <= 0) {
                 delete carrinho[id];
@@ -582,7 +710,18 @@
             ajustarPorMetodoPagamento();
         }
 
-        // --- 5. EXECUÇÃO DE IMPRESSÕES E PROCESSAMENTOS ---
+        function abaterEstoqueDoCarrinho() {
+            for (const id in carrinho) {
+                let p = produtos.find(prod => prod.id == id);
+                if (p && p.estoque !== null) {
+                    p.estoque -= carrinho[id].qtd;
+                }
+            }
+            localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
+            renderizarBotoesVenda();
+        }
+
+        // --- 6. EXECUÇÃO DE IMPRESSÕES E PROCESSAMENTOS ---
         function finalizarEImprimir() {
             if (totalGeral === 0) {
                 alert("O carrinho está vazio!");
@@ -600,6 +739,8 @@
                 return;
             }
 
+            abaterEstoqueDoCarrinho();
+
             const troco = valorPago - totalGeral;
             const agora = new Date();
             const dataHoraStr = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
@@ -607,7 +748,7 @@
             let itensVendidosSalvar = [];
             for (const id in carrinho) {
                 const item = carrinho[id];
-                itensVendidosSalvar.push({ nome: item.nome, qtd: item.qtd, subtotal: (item.preco * item.qtd) });
+                itensVendidosSalvar.push({ idOriginal: id, nome: item.nome, qtd: item.qtd, subtotal: (item.preco * item.qtd) });
             }
 
             const novaVenda = {
@@ -628,6 +769,76 @@
 
             limparCarrinho();
             renderizarHistorico();
+        }
+
+        function concluirVenda() {
+            if (totalGeral === 0) {
+                alert("O carrinho está vazio!");
+                return;
+            }
+
+            const metodo = document.getElementById('metodo-pagamento').value;
+            let valorPago = parseFloat(document.getElementById('valor-pago').value) || 0;
+            const nomePagador = document.getElementById('nome-pix').value.trim();
+            
+            if (metodo === "PIX") valorPago = totalGeral;
+
+            if (valorPago < totalGeral) {
+                alert("O valor recebido é menor que o total da conta.");
+                return;
+            }
+
+            abaterEstoqueDoCarrinho();
+
+            const troco = valorPago - totalGeral;
+            const agora = new Date();
+            const dataHoraStr = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
+
+            let itensVendidosSalvar = [];
+            for (const id in carrinho) {
+                const item = carrinho[id];
+                itensVendidosSalvar.push({ idOriginal: id, nome: item.nome, qtd: item.qtd, subtotal: (item.preco * item.qtd) });
+            }
+
+            const novaVenda = {
+                dataHora: dataHoraStr,
+                total: totalGeral,
+                metodo: metodo,
+                valorPago: valorPago,
+                troco: troco,
+                itens: itensVendidosSalvar,
+                pagador: metodo === "PIX" ? (nomePagador || "Não Informado") : "",
+                estornado: false
+            };
+
+            vendasDoDia.push(novaVenda);
+            localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
+
+            alert("Venda concluída com sucesso!");
+
+            limparCarrinho();
+            renderizarHistorico();
+        }
+
+        function estornarVenda(index) {
+            if (confirm(`Tem certeza que deseja ESTORNAR o Pedido #${index + 1}? Os itens voltarão para o estoque.`)) {
+                let venda = vendasDoDia[index];
+                venda.estornado = true;
+
+                // Devolve os itens estornados ao estoque
+                venda.itens.forEach(item => {
+                    let p = produtos.find(prod => prod.id == item.idOriginal);
+                    if (p && p.estoque !== null) {
+                        p.estoque += item.qtd;
+                    }
+                });
+
+                localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
+                localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
+                
+                renderizarBotoesVenda();
+                renderizarHistorico();
+            }
         }
 
         function executarImpressaoTalao(dadosVenda, tipoTexto) {
@@ -701,8 +912,8 @@
 
         function imprimirHistoricoCompleto() {
             const vendasValidas = vendasDoDia.filter(v => !v.estornado);
-            if (vendasValidas.length === 0) {
-                alert("Nenhuma venda ativa para imprimir no histórico.");
+            if (vendasValidas.length === 0 && movimentacoesCaixa.length === 0) {
+                alert("Nenhum dado ativo para imprimir.");
                 return;
             }
 
@@ -710,21 +921,18 @@
             const dataHoraStr = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
             const talao = document.getElementById('talao');
 
-            let totalDinheiro = 0, totalPix = 0, totalGeralDia = 0;
+            let totalDinheiroVendas = 0, totalPixVendas = 0;
             let linhasVendas = '';
 
             vendasValidas.forEach((venda, idx) => {
-                totalGeralDia += venda.total;
-                if (venda.metodo === "PIX") totalPix += venda.total;
-                else totalDinheiro += venda.total;
+                if (venda.metodo === "PIX") totalPixVendas += venda.total;
+                else totalDinheiroVendas += venda.total;
 
                 let detalheItens = venda.itens.map(it => `${it.qtd}x ${it.nome}`).join(', ');
-                let infoPagador = venda.pagador ? ` - Ref: ${venda.pagador}` : "";
-
                 linhasVendas += `
                     <tr>
-                        <td style="font-size:11px; padding: 5px 0; border-bottom: 1px dashed #eee;">
-                            <strong>#${idx + 1} - ${venda.metodo}${infoPagador} (${venda.dataHora.split(' ')[1]})</strong><br>
+                        <td style="font-size:11px; padding: 4px 0; border-bottom: 1px dashed #eee;">
+                            <strong>#${idx + 1} - ${venda.metodo} (${venda.dataHora.split(' ')[1]})</strong><br>
                             <span style="color:#555;">${detalheItens}</span>
                         </td>
                         <td></td>
@@ -733,17 +941,33 @@
                 `;
             });
 
+            let totalSuprimentos = 0, totalSangrias = 0;
+            let linhasMov = '';
+            movimentacoesCaixa.forEach(mov => {
+                if (mov.tipo === "Suprimento") totalSuprimentos += mov.valor;
+                else totalSangrias += mov.valor;
+
+                linhasMov += `
+                    <div>🔹 ${mov.tipo} (${mov.dataHora.split(' ')[1]}): +${formatarMoeda(mov.valor)}<br><small style="color:#555;">Motivo: ${mov.obs}</small></div>
+                `;
+            });
+
+            let dinheiroEmCaixaFisico = totalDinheiroVendas + totalSuprimentos - totalSangrias;
+
             talao.innerHTML = `
                 <div class="talao-header">
                     <h1>ARRAIAL DA RITINHA</h1>
-                    <div style="font-weight:bold;">HISTÓRICO GERAL DE VENDAS</div>
+                    <div style="font-weight:bold;">FECHAMENTO E HISTÓRICO GERAL</div>
                     <div style="font-size: 11px;">Impresso em: ${dataHoraStr}</div>
                 </div>
+                <div class="divisor"></div>
+                <strong>ENTRADAS E SAÍDAS DE TROCO:</strong>
+                <div style="font-size:11px; margin-top:5px;">${linhasMov || 'Nenhuma movimentação de troco realizada.'}</div>
                 <div class="divisor"></div>
                 <table class="talao-table">
                     <thead>
                         <tr>
-                            <th style="text-align:left;">Resumo Ref.</th>
+                            <th style="text-align:left;">Vendas Efetuadas</th>
                             <th></th>
                             <th class="text-right">Valor</th>
                         </tr>
@@ -754,14 +978,19 @@
                 </table>
                 <div class="divisor"></div>
                 <div class="talao-totais" style="font-size:12px;">
-                    <div>💵 Total Espécie: <span>${formatarMoeda(totalDinheiro)}</span></div>
-                    <div>📱 Total PIX: <span>${formatarMoeda(totalPix)}</span></div>
-                    <div style="margin-top:4px; font-size:13px;"><strong>💰 FATURAMENTO:</strong> <strong>${formatarMoeda(totalGeralDia)}</strong></div>
-                    <div>Atendimentos Ativos: <span>${vendasValidas.length}</span></div>
+                    <div>💵 Vendas em Dinheiro: <span>${formatarMoeda(totalDinheiroVendas)}</span></div>
+                    <div>📱 Vendas em PIX: <span>${formatarMoeda(totalPixVendas)}</span></div>
+                    <div style="margin:4px 0; border-top:1px dotted black; padding-top:4px;"></div>
+                    <div>📥 Total Suprimento: <span>+${formatarMoeda(totalSuprimentos)}</span></div>
+                    <div>📤 Total Sangria: <span>-${formatarMoeda(totalSangrias)}</span></div>
+                    <div style="margin-top:6px; font-size:14px; border-top:1px dashed black; padding-top:4px;">
+                        <strong>💰 TOTAL EM CAIXA FÍSICO:<br>${formatarMoeda(dinheiroEmCaixaFisico)}</strong>
+                    </div>
+                    <small style="(Soma das Vendas em Dinheiro + Suprimentos - Sangrias)</small>
                 </div>
                 <div class="divisor"></div>
                 <div class="talao-footer" style="margin-top:10px;">
-                    -- FIM DO RELATÓRIO DE VENDAS --
+                    -- FIM DO RELATÓRIO DO DIA --
                 </div>
             `;
 
@@ -769,82 +998,17 @@
                 window.print();
             }, 50);
         }
-        
-        function concluirVenda() {
-            if (totalGeral === 0) {
-                alert("O carrinho está vazio!");
-                return;
-            }
-
-            const metodo = document.getElementById('metodo-pagamento').value;
-            let valorPago = parseFloat(document.getElementById('valor-pago').value) || 0;
-            const nomePagador = document.getElementById('nome-pix').value.trim();
-            
-            if (metodo === "PIX") valorPago = totalGeral;
-
-            if (valorPago < totalGeral) {
-                alert("O valor recebido é menor que o total da conta.");
-                return;
-            }
-
-            const troco = valorPago - totalGeral;
-            const agora = new Date();
-            const dataHoraStr = agora.toLocaleDateString('pt-BR') + ' ' + agora.toLocaleTimeString('pt-BR');
-
-            let itensVendidosSalvar = [];
-            for (const id in carrinho) {
-                const item = carrinho[id];
-                itensVendidosSalvar.push({ nome: item.nome, qtd: item.qtd, subtotal: (item.preco * item.qtd) });
-            }
-
-            const novaVenda = {
-                dataHora: dataHoraStr,
-                total: totalGeral,
-                metodo: metodo,
-                valorPago: valorPago,
-                troco: troco,
-                itens: itensVendidosSalvar,
-                pagador: metodo === "PIX" ? (nomePagador || "Não Informado") : "",
-                estornado: false
-            };
-
-            vendasDoDia.push(novaVenda);
-            localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
-
-            alert("Venda concluída com sucesso (sem cupom)!");
-
-            limparCarrinho();
-            renderizarHistorico();
-        }
-
-        function estornarVenda(index) {
-            if (confirm(`Tem certeza que deseja ESTORNAR (cancelar) o Pedido #${index + 1}? O valor será abatido do relatório.`)) {
-                vendasDoDia[index].estornado = true;
-                localStorage.setItem('vendas_dia_arraial', JSON.stringify(vendasDoDia));
-                renderizarHistorico();
-            }
-        }
 
         function gerarRelatorioFechamento() {
             const vendasValidas = vendasDoDia.filter(v => !v.estornado);
 
-            if (vendasValidas.length === 0) {
-                alert("Nenhuma venda ativa realizada hoje até o momento.");
-                return;
-            }
-
             let resumoProdutos = {};
-            let faturamentoTotal = 0;
-            let faturamentoDinheiro = 0;
-            let faturamentoPix = 0;
+            let faturamentoVendasDinheiro = 0;
+            let faturamentoVendasPix = 0;
 
             vendasValidas.forEach(venda => {
-                faturamentoTotal += venda.total;
-                if (venda.metodo === "PIX") {
-                    faturamentoPix += venda.total;
-                } else {
-                    faturamentoDinheiro += venda.total;
-                }
+                if (venda.metodo === "PIX") faturamentoVendasPix += venda.total;
+                else faturamentoVendasDinheiro += venda.total;
 
                 venda.itens.forEach(item => {
                     if (resumoProdutos[item.nome]) {
@@ -856,13 +1020,25 @@
                 });
             });
 
+            let totalSuprimento = 0;
+            let totalSangria = 0;
+            movimentacoesCaixa.forEach(m => {
+                if (m.tipo === "Suprimento") totalSuprimento += m.valor;
+                else totalSangria += m.valor;
+            });
+
+            let totalDinheiroFisicoEsperado = faturamentoVendasDinheiro + totalSuprimento - totalSangria;
+
             let textoRelatorio = `📊 FECHAMENTO PARCIAL DE CAIXA 📊\n`;
-            textoRelatorio += `Vendas Ativas: ${vendasValidas.length} (Estornos ignorados)\n\n`;
-            textoRelatorio += `💵 Em Espécie: ${formatarMoeda(faturamentoDinheiro)}\n`;
-            textoRelatorio += `📱 Em PIX: ${formatarMoeda(faturamentoPix)}\n`;
-            textoRelatorio += `💰 FATURAMENTO TOTAL: ${formatarMoeda(faturamentoTotal)}\n\n`;
+            textoRelatorio += `Vendas Ativas: ${vendasValidas.length}\n\n`;
+            textoRelatorio += `💵 Faturamento em Dinheiro: ${formatarMoeda(faturamentoVendasDinheiro)}\n`;
+            textoRelatorio += `📱 Faturamento em PIX: ${formatarMoeda(faturamentoVendasPix)}\n`;
+            textoRelatorio += `📥 Total Suprimento (Troco Inicial): +${formatarMoeda(totalSuprimento)}\n`;
+            textoRelatorio += `📤 Total Sangria (Retiradas): -${formatarMoeda(totalSangria)}\n`;
+            textoRelatorio += `-------------------------------------------\n`;
+            textoRelatorio += `💰 DINHEIRO FÍSICO NA GAVETA: ${formatarMoeda(totalDinheiroFisicoEsperado)}\n`;
+            textoRelatorio += `-------------------------------------------\n\n`;
             textoRelatorio += `QUANTIDADE POR PRODUTO:\n`;
-            textoRelatorio += `---------------------------\n`;
 
             for (const prod in resumoProdutos) {
                 textoRelatorio += `${prod}: ${resumoProdutos[prod].qtd} un - ${formatarMoeda(resumoProdutos[prod].subtotal)}\n`;
@@ -872,12 +1048,14 @@
         }
 
         function zerarCaixaDoDia() {
-            if (confirm("⚠️ ATENÇÃO: Tem certeza absoluta que deseja fechar o caixa e ZERAR todas as estatísticas de vendas de hoje? Isso não pode ser desfeito.")) {
+            if (confirm("⚠️ ATENÇÃO: Tem certeza absoluta que deseja fechar o caixa e ZERAR todas as estatísticas de vendas, estoque e movimentações de hoje?")) {
                 vendasDoDia = [];
+                movimentacoesCaixa = [];
                 localStorage.removeItem('vendas_dia_arraial');
+                localStorage.removeItem('movimentacoes_caixa_arraial');
                 limparCarrinho();
                 renderizarHistorico();
-                alert("O histórico de vendas do dia foi zerado com sucesso!");
+                alert("O histórico do dia foi zerado com sucesso!");
             }
         }
 

@@ -368,7 +368,7 @@
         </div>
 
         <!-- Lista de remoção e ajuste de estoque -->
-        <h4>Produtos Atuais (Toque para excluir / Clique em + para reabastecer)</h4>
+        <h4>Produtos Atuais (Toque para Editar Detalhes ou Excluir)</h4>
         <div id="lista-exclusao-produtos" style="text-align: left;">
             <!-- Gerado dinamicamente via JS -->
         </div>
@@ -438,9 +438,9 @@
                             <span style="font-weight: 500;"><strong>${prod.nome}</strong> (${formatarMoeda(prod.preco)})</span>
                             <button onclick="excluirProduto(${prod.id})" style="background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size:12px;">❌ Excluir</button>
                         </div>
-                        <div style="margin-top:6px; font-size:13px; color:#555; display:flex; align-items:center; gap:10px;">
+                        <div style="margin-top:6px; font-size:13px; color:#555; display:flex; align-items:center; justify-content: space-between; gap:10px;">
                             <span>Estoque atual: <strong>${exibicaoEstoque}</strong></span>
-                            <button onclick="adicionarEstoqueManual(${prod.id})" style="padding:2px 6px; font-size:11px; background:#2980b9; color:white; border:none; border-radius:3px; cursor:pointer;">+ Add Estoque</button>
+                            <button onclick="editarProdutoGeral(${prod.id})" style="padding:4px 10px; font-size:12px; background:#2980b9; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">✏️ Alterar Item</button>
                         </div>
                     </div>
                 `;
@@ -451,12 +451,10 @@
             const container = document.getElementById('lista-historico-vendas');
             container.innerHTML = '';
 
-            // Junta vendas e movimentações para uma timeline completa ordenável
             let timeline = [];
             vendasDoDia.forEach((v, idx) => timeline.push({tipo: 'venda', originalIndex: idx, dataHora: v.dataHora, obj: v}));
             movimentacoesCaixa.forEach((m, idx) => timeline.push({tipo: 'movimentacao', originalIndex: idx, dataHora: m.dataHora, obj: m}));
 
-            // Ordena do mais recente para o mais antigo
             timeline.sort((a, b) => b.originalIndex - a.originalIndex);
 
             if (timeline.length === 0) {
@@ -532,18 +530,51 @@
             renderizarListaExclusao();
         }
 
-        function adicionarEstoqueManual(id) {
-            let qtd = prompt("Quantas unidades deseja Adicionar ao estoque desse produto?");
-            if (qtd === null || isNaN(parseInt(qtd))) return;
-            
+        function editarProdutoGeral(id) {
             let prod = produtos.find(p => p.id === id);
-            if (prod) {
-                if (prod.estoque === null) prod.estoque = 0;
-                prod.estoque += parseInt(qtd);
-                localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
-                renderizarBotoesVenda();
-                renderizarListaExclusao();
+            if (!prod) return;
+
+            // 1. Alterar Nome
+            let novoNome = prompt(`Editar NOME do produto:\n(Atual: ${prod.nome})`, prod.nome);
+            if (novoNome === null) return; // cancelou
+            novoNome = novoNome.trim();
+            if (novoNome === "") {
+                alert("O nome não pode ficar vazio.");
+                return;
             }
+
+            // 2. Alterar Preço
+            let precoAtualStr = prod.preco.toFixed(2);
+            let novoPrecoStr = prompt(`Editar PREÇO do produto (use ponto para centavos):\n(Atual: R$ ${precoAtualStr})`, precoAtualStr);
+            if (novoPrecoStr === null) return;
+            let novoPreco = parseFloat(novoPrecoStr);
+            if (isNaN(novoPreco) || novoPreco <= 0) {
+                alert("Preço inválido.");
+                return;
+            }
+
+            // 3. Alterar Estoque
+            let estoqueAtualStr = prod.estoque !== null ? prod.estoque : "ilimitado";
+            let novoEstoqueStr = prompt(`Editar ESTOQUE (Digite o número total de fichas ou deixe VAZIO para ILIMITADO):\n(Atual: ${estoqueAtualStr})`, prod.estoque !== null ? prod.estoque : "");
+            
+            if (novoEstoqueStr === null) return;
+            
+            let novoEstoque = novoEstoqueStr.trim() === "" ? null : parseInt(novoEstoqueStr);
+            if (novoEstoque !== null && (isNaN(novoEstoque) || novoEstoque < 0)) {
+                alert("Quantidade de estoque inválida.");
+                return;
+            }
+
+            // Salva as alterações
+            prod.nome = novoNome;
+            prod.preco = novoPreco;
+            prod.estoque = novoEstoque;
+
+            localStorage.setItem('cardapio_arraial', JSON.stringify(produtos));
+            renderizarBotoesVenda();
+            renderizarListaExclusao();
+            limparCarrinho(); // Limpa para evitar erros de cálculo com o preço antigo no carrinho
+            alert("Produto atualizado com sucesso!");
         }
 
         function excluirProduto(id) {
@@ -581,7 +612,6 @@
             const produto = produtos.find(p => p.id === id);
             if (!produto) return;
 
-            // Validação de Estoque
             if (produto.estoque !== null && produto.estoque <= 0) {
                 alert("Este produto esgotou na cozinha!");
                 return;
@@ -660,7 +690,7 @@
             const metodo = document.getElementById('metodo-pagamento').value;
             const inputPago = document.getElementById('valor-pago');
             const containerPago = document.getElementById('container-valor-pago');
-            const containerNotas = document.getElementById('container-notas-rapidas');
+            const containerNotas = document.getElementById('container-notes-rapidas');
             const containerTroco = document.getElementById('container-troco');
             const containerNomePix = document.getElementById('container-nome-pix');
 
@@ -825,7 +855,6 @@
                 let venda = vendasDoDia[index];
                 venda.estornado = true;
 
-                // Devolve os itens estornados ao estoque
                 venda.itens.forEach(item => {
                     let p = produtos.find(prod => prod.id == item.idOriginal);
                     if (p && p.estoque !== null) {
@@ -841,7 +870,7 @@
             }
         }
 
-        function executarImpressaoTalao(dadosVenda, tipoTexto) {
+        function ejecutarImpressaoTalao(dadosVenda, tipoTexto) {
             const talao = document.getElementById('talao');
             
             let tabelaLinhas = dadosVenda.itens.map(item => `
@@ -978,15 +1007,14 @@
                 </table>
                 <div class="divisor"></div>
                 <div class="talao-totais" style="font-size:12px;">
-                    <div>💵 Vendas em Dinheiro: <span>${formatarMoeda(totalDinheiroVendas)}</span></div>
-                    <div>📱 Vendas em PIX: <span>${formatarMoeda(totalPixVendas)}</span></div>
+                    <div>💵 Vendas in Dinheiro: <span>${formatarMoeda(totalDinheiroVendas)}</span></div>
+                    <div>📱 Vendas in PIX: <span>${formatarMoeda(totalPixVendas)}</span></div>
                     <div style="margin:4px 0; border-top:1px dotted black; padding-top:4px;"></div>
                     <div>📥 Total Suprimento: <span>+${formatarMoeda(totalSuprimentos)}</span></div>
                     <div>📤 Total Sangria: <span>-${formatarMoeda(totalSangrias)}</span></div>
                     <div style="margin-top:6px; font-size:14px; border-top:1px dashed black; padding-top:4px;">
                         <strong>💰 TOTAL EM CAIXA FÍSICO:<br>${formatarMoeda(dinheiroEmCaixaFisico)}</strong>
                     </div>
-                    <small style="(Soma das Vendas em Dinheiro + Suprimentos - Sangrias)</small>
                 </div>
                 <div class="divisor"></div>
                 <div class="talao-footer" style="margin-top:10px;">
